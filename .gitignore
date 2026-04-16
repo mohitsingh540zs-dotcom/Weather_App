@@ -1,0 +1,25 @@
+# API Keys / Config
+config.js
+
+# Node modules (future-proof if you add npm)
+node_modules/
+
+# Build / dist folders
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+
+# Temp files
+*.tmp
+*.swp
