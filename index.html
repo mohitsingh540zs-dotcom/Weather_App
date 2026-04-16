@@ -1,12 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Weather App</title>
     <link rel="stylesheet" href="src/output.css">
 </head>
-<body>
-    
+
+<body class="bg-blue-300">
+    <!-- for screen readers -->
+    <header class="sr-only">
+        <h1>Weather Dashboard</h1>
+    </header>
+    <!-- main section -->
+    <main
+        class="relative min-h-screen w-full p-4 sm:p-6 lg:p-8 flex flex-col lg:items-center justify-start lg:justify-center font-sans overflow-x-hidden">
+
+        <!-- overlay container for dim effect -->
+        <div class="absolute inset-0 bg-black/20"></div>
+
+        <!-- left card-->
+        <div class="relative bg-[rgba(30,30,30,0.4)] backdrop-blur-xl z-10 p-4 sm:p-6 w-full max-w-7xl mx-auto 
+                grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] xl:grid-cols-[1fr_2fr] 
+                gap-6 rounded-xl overflow-hidden lg:h-[85vh] lg:max-h-[850px] xl:h-[90vh] xl:max-h-[900px] items-stretch">
+
+            <!-- LEFT -->
+            <aside class=" flex flex-col gap-3 text-white h-full min-h-0">
+
+                <!-- search -->
+                <div aria-label="Search city weather" id="search-container" class="relative">
+                    <form id="search-form"
+                        class="border-white/20 border bg-black/40 w-full rounded-2xl flex items-center gap-4 px-4 py-2 shrink-0">
+
+                        <img src="./assets/icons/location.png" alt="Location Icon" width="26" height="26"
+                            class="w-6 h-6 invert">
+
+                        <div class="flex items-center gap-4 w-full">
+                            <label for="city-name" class="sr-only">Search City</label>
+
+                            <input id="city-name" type="text" name="city" placeholder="Search for a city..."
+                                class="bg-transparent w-full border-b border-white/50 focus:outline-none placeholder:text-white/70 text-white p-1"
+                                required>
+
+                            <button type="submit" class="cursor-pointer translate-y-0.5">
+                                <img src="./assets/icons/search.png" alt="Search Icon" width="20" height="20"
+                                    class="w-5 h-5 invert">
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Dropdown -->
+                    <div id="dropdown"
+                        class="absolute bg-black/40 backdrop-blur-lg border border-white text-white w-2/3 h-40 px-3 py-2 left-1/2 -translate-x-1/2 top-12 text-sm sm:text-base rounded-xl hidden">
+
+                        <div class="w-full h-full flex flex-col gap-2">
+                            <div class="flex justify-between items-center text-base font-bold">
+                                <span class="">Saved Info</span>
+                                <img class="w-4 h-4 cursor-pointer invert hover:rotate-90 transition-transform duration-300 ease-in"
+                                    src="./assets/icons/close.png" width="16" height="16" alt="Close dropdown"
+                                    id="close-dropdown">
+                            </div>
+
+                            <div id="dropdown-content" class="flex flex-col gap-2 overflow-y-auto custom-scroll">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- weather card -->
+                <section aria-label="Current Weather" id="left-card" class="bg-blue-500/50 
+            flex flex-col gap-4 rounded-2xl flex-1">
+
+                    <!-- TOP -->
+                    <header class="w-full flex flex-col items-center text-center gap-3 py-2 px-4 h-fit min-w-0">
+                        <div class="w-full flex items-center justify-between">
+                            <p aria-label="Current Location" class="text-lg font-semibold flex items-center gap-2">
+                                <img class="w-5 h-5 invert" width="20" height="20" src="assets/icons/Curr_location.png"
+                                    alt="Current Location">
+                                <span data-weather="left-address"
+                                    class="[text-shadow:0_0_8px_rgba(0,0,0,0.9)]">Location</span>
+                            </p>
+                            <button id="toggle" type="button" aria-label="Toggle temperature unit"
+                                class=" relative w-16 h-8 border border-black p-1 rounded-2xl flex items-center">
+                                <div id="toggle-circle"
+                                    class="absolute left-1 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white">
+                                </div>
+                                <div class="w-1/2 font-semibold text-lg">&deg;C</div>
+                                <div class="w-1/2 font-semibold text-lg">&deg;F</div>
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col gap-4 [text-shadow:0_0_8px_rgba(0,0,0,0.9)]">
+
+                            <h2 data-weather="left-temp"
+                                class=" text-3xl sm:text-4xl md:text-5xl lg:text-6xl ">
+                                Temp
+                            </h2>
+
+                            <p data-weather="left-condition"
+                                class="text-base sm:text-lg md:text-xl lg:text-2xl ">
+                                Condition
+                            </p>
+
+                            <p data-weather="left-desc"
+                                class="font-semibold text-sm sm:text-base md:text-md lg:text-lg  max-w-[90%] sm:max-w-xs wrap-break-word">
+                                Description
+                            </p>
+                        </div>
+                    </header>
+
+                    <!-- BOTTOM -->
+                    <footer aria-label="Condition Grid"
+                        class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 p-4 mt-auto">
+                        <article data-key="feelsLike"
+                            class="border-white/20 border bg-black/50 p-3 rounded-lg flex flex-col justify-between">
+                            <div class="space-y-1">
+                                <div class="flex gap-2 items-center">
+                                    <img src="./assets/icons/thermometer.png" width="20" height="20"
+                                        alt="Temperature" class="w-5 h-5 invert">
+                                    <span
+                                        class="text-xs sm:text-sm text-white/70 uppercase max-w-[90%] sm:max-w-xs wrap-break-word">
+                                        Feels Like</span>
+                                </div>
+
+                                <h3 class="data-value text-lg md:text-[1.5rem]">Temp</h3>
+                            </div>
+
+                            <p class="data-advice text-sm max-w-[90%] sm:max-w-xs wrap-break-word">Advice.</p>
+                        </article>
+
+                        <article data-key="humidity"
+                            class="border-white/20 border bg-black/50 p-3 rounded-lg flex flex-col justify-between">
+                            <div class="space-y-1">
+                                <div class="flex gap-2 items-center">
+                                    <img src="./assets/icons/humidity.png" alt="Humidity" width="20" height="20"
+                                        class="w-5 h-5 invert">
+                                    <span
+                                        class="text-xs sm:text-sm text-white/70 uppercase max-w-[90%] sm:max-w-xs wrap-break-word">
+                                        Humidity</span>
+                                </div>
+
+                                <h3 class="data-value text-lg md:text-[1.5rem]">Value</h3>
+                            </div>
+
+                            <p class="data-advice text-sm max-w-[90%] sm:max-w-xs wrap-break-word">Advice</p>
+                        </article>
+
+                        <article data-key="visibility"
+                            class="border-white/20 border bg-black/50 p-3 rounded-lg flex flex-col justify-between">
+                            <div class="space-y-1">
+                                <div class="flex gap-2 items-center">
+                                    <img src="./assets/icons/visible.png" alt="Visibility" width="20" height="20"
+                                        class="w-5 h-5 invert">
+                                    <span
+                                        class="text-xs sm:text-sm text-white/70 uppercase max-w-[90%] sm:max-w-xs wrap-break-word">
+                                        Visibility</span>
+                                </div>
+                                <h3 class="data-value text-lg md:text-[1.5rem]">Value</h3>
+                            </div>
+
+                            <p class="data-advice text-sm max-w-[90%] sm:max-w-xs wrap-break-word">Advice</p>
+                        </article>
+
+                        <article data-key="precip"
+                            class="border-white/20 border bg-black/50 p-3 rounded-lg flex flex-col justify-between">
+                            <div class="space-y-1">
+                                <div class="flex gap-2 items-center">
+                                    <img src="./assets/icons/water-drop.png" alt="Precipitation" width="20"
+                                        height="20" class="w-5 h-5 invert">
+                                    <span
+                                        class="text-xs sm:text-sm text-white/70 uppercase max-w-[90%] sm:max-w-xs wrap-break-word">
+                                        Precipitation</span>
+                                </div>
+
+                                <h3 class="data-value text-lg md:text-[1.5rem]">Value</h3>
+                            </div>
+
+                            <p class="data-advice text-sm">Advice.</p>
+                        </article>
+                    </footer>
+
+                </section>
+            </aside>
+        </div>
+    </main>
 </body>
+
 </html>

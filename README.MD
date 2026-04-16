@@ -15,3 +15,10 @@ A responsive weather web app built using HTML, Tailwind CSS, and JavaScript.
 - HTML
 - Tailwind CSS
 - JavaScript
+
+## Features
+Created main layout in grid format divided into 2 parts (left and right) right now left card created.
+- Search bar.
+- Weather card,
+- Weather card contains temp, condition and description.
+- 4 condition card contains feelslike, humidity, visibility, precipitation.
