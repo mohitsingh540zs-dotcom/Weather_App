@@ -1,6 +1,7 @@
 // importing the Config object from config.js file
 
 import { CONFIG } from "./config.js";
+import { feelsLikeText, HumidityText, precipitationText, unitsAssigner, visibilityText } from "./utils.js";
 
 // Cacheing to reduce the expense of dom calls after load creates a object of these instances for better performance and maintainabilty.
 const DOM = {
@@ -12,7 +13,9 @@ const DOM = {
         dropdown: document.getElementById("dropdown"),
         city_input: document.getElementById("city-name"),
         dropdownContent: document.getElementById("dropdown-content"),
-        closeDropDownBtn: document.getElementById("close-dropdown")
+        closeDropDownBtn: document.getElementById("close-dropdown"),
+        toggle: document.getElementById("toggle"),
+        toggleIndicator: document.getElementById("toggle-circle")
     },
 
     Loader: document.getElementById("loader")
@@ -33,6 +36,7 @@ const hideLoader = () => {
     Loader.classList.add("opacity-0", "pointer-events-none");
 };
 let lastCity = "";
+let currentTemp = null;
 // API Caller
 const getWeather = async (city_name) => {
 
@@ -53,21 +57,22 @@ const getWeather = async (city_name) => {
 
         if (!res.ok) {
             if (res.status === 429) {
-                ShowToast("API limit reached", "error");
+                console.log("API limit reached");
                 return;
             }
 
             if (res.status === 404) {
-                ShowToast("City not found", "error");
+                console.log("City not found");
                 return;
             }
 
             throw new Error("Unknown error");
         }
 
+
         const RawData = await res.json();
 
-        console.log(RawData);
+        updateUI(RawData);
 
     } catch (error) {
         console.error("Unable to fetch weather data", error);
@@ -151,3 +156,118 @@ document.addEventListener("click", (e) => {
         leftPanel.dropdown.classList.add("hidden");
     }
 });
+// toggle eventListener
+let isCelsius = true;
+
+leftPanel.toggle.addEventListener("click", () => {
+    isCelsius = !isCelsius;
+
+    leftPanel.toggleIndicator.classList.toggle("left-1");
+    leftPanel.toggleIndicator.classList.toggle("right-1");
+
+    updateLeftTemp();
+});
+// RawData formater's
+const formatWeatherData = (data) => {
+    const { address, currentConditions, description } = data;
+
+    const {
+        temp,
+        conditions,
+        feelslike,
+        humidity,
+        visibility,
+        precip,
+        uvindex,
+        windspeed,
+        winddir,
+        windgust
+    } = currentConditions;
+
+    return {
+        temp,
+        conditions,
+        desc: description,
+        feelslike,
+        humidity,
+        visibility,
+        precip,
+        uv_index: uvindex,
+        wind_speed: windspeed,
+        winddir,
+        windgust,
+        address
+    };
+};
+// Celcius to fahrenheit Converter 
+const updateLeftTemp = () => {
+    if (currentTemp === null) return;
+
+    const temp = isCelsius
+        ? currentTemp
+        : (currentTemp * 9 / 5) + 32;
+
+    const unit = isCelsius ? "°C" : "°F";
+
+    const el = leftPanel.leftCard.querySelector('[data-weather="left-temp"]');
+    el.textContent = temp.toFixed(1) + unit;
+};
+// Master Function to update all data
+const updateUI = (data) => {
+    // first we will clean the raw data and then we will send the cleaned data to other updating functions.
+
+    const weather = formatWeatherData(data);
+
+    currentTemp = weather.temp;
+    updateLeftCard(weather);
+}
+// left fixed card updation
+const updateLeftCard = (data) => {
+
+    const LeftCardMap = {
+        "left-address": data.address,
+        "left-temp": data.temp,
+        "left-condition": data.conditions,
+        "left-desc": data.desc,
+    }
+
+    Object.keys(LeftCardMap).forEach(key => {
+        const element = leftPanel.leftCard.querySelector(`[data-weather="${key}"]`);
+        if (!element) return;
+
+        if (key === 'left-temp') {
+            updateLeftTemp();
+        } else {
+            element.textContent = LeftCardMap[key];
+        }
+    });
+
+    const cardMap = {
+        "feelsLike": data.feelslike,
+        "humidity": data.humidity,
+        "visibility": data.visibility,
+        "precip": data.precip
+    }
+
+    const adviceMap = {
+        feelsLike: () => feelsLikeText(data.temp, data.feelslike),
+        humidity: () => HumidityText(data.humidity),
+        visibility: () => visibilityText(data.visibility),
+        precip: () => precipitationText(data.precip)
+    };
+
+    Object.keys(cardMap).forEach(key => {
+        const element = leftPanel.leftCard.querySelector(`[data-key="${key}"]`);
+        if (!element) return;
+
+        const value = element.querySelector('.data-value');
+        const advice = element.querySelector('.data-advice');
+
+        const result = unitsAssigner(cardMap[key], key);
+
+        value.textContent = result ?? 0;
+
+        advice.textContent = adviceMap[key](data);
+    });
+
+}

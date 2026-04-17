@@ -51,17 +51,17 @@ Added the right-side container with key weather data components including:
   - Provides safety suggestions based on UV exposure.
 
 ## Modular style 
--- Used config.js file which contains
-  --API_KEY,
-  --BASE_URL,
-  --AQI_API_KEY,
-  --AQI_BASE_URL
--- Included format in config.example.js just insert your key's for usage.
+- Used config.js file which contains
+  - API_KEY,
+  - BASE_URL,
+  - AQI_API_KEY,
+  - AQI_BASE_URL
+- Included format in config.example.js just insert your key's for usage.
 
 ## Cacheing 
 A centralised DOM object is used to store all selectors.
--- Reduces repeated calls of query/id selectors.
--- For performance and maintainability.
+- Reduces repeated calls of query/id selectors.
+- For performance and maintainability.
 
 ## Functionalities
 Functions created by javascript to make webpage interactive.
@@ -75,6 +75,20 @@ Functions created by javascript to make webpage interactive.
 **HideDropdown**
 - To hide dropdown box by clicking on cross icon or in document other then search bar.
 **Custom Loader**
---For making app alive and user's don't think that they are stucked.
+- For making app alive and user's don't think that they are stucked.
 **GetWeather**
 - Async function to make call on api to get the response by the city as input.
+**FormatWeather**
+Instead of feeding full api response i cleaned the data to use for my own needs.
+- Destructuring the neccesary objects like currentConditions, days, description, etc..
+**UnitConverter**
+Created a function to convert celcius value to farenheit value.
+- Trigger on toggle.
+- Used the pure formula for calculation.
+**UpdateUi**
+Created a Master function which takes the clean data and pass them to other particluar functions.
+- UpdateLeftCard: to update the left part of app.
+
+# Utils 
+This javascript file contains the helper function which returns texts,units, or other neccessary data.
+- Used to consist the cleaniness of code.
