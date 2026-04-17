@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Real-time weather dashboard with hourly and 5-day forecast, AQI, UV index, and wind details.">
     <title>Weather App</title>
     <link rel="stylesheet" href="src/output.css">
     <link rel="stylesheet" href="src/scrollbar.css">
@@ -43,7 +45,7 @@
 
                             <input id="city-name" type="text" name="city" placeholder="Search for a city..."
                                 class="bg-transparent w-full border-b border-white/50 focus:outline-none placeholder:text-white/70 text-white p-1"
-                                required>
+                                required autocomplete="off">
 
                             <button type="submit" class="cursor-pointer translate-y-0.5">
                                 <img src="./assets/icons/search.png" alt="Search Icon" width="20" height="20"
@@ -54,7 +56,7 @@
 
                     <!-- Dropdown -->
                     <div id="dropdown"
-                        class="absolute bg-black/40 backdrop-blur-lg border border-white text-white w-2/3 h-40 px-3 py-2 left-1/2 -translate-x-1/2 top-12 text-sm sm:text-base rounded-xl hidden">
+                        class="z-10 absolute bg-black/40 backdrop-blur-lg border border-white text-white w-2/3 h-40 px-3 py-2 left-1/2 -translate-x-1/2 top-12 text-sm sm:text-base rounded-xl hidden">
 
                         <div class="w-full h-full flex flex-col gap-2">
                             <div class="flex justify-between items-center text-base font-bold">
@@ -85,7 +87,7 @@
                                     class="[text-shadow:0_0_8px_rgba(0,0,0,0.9)]">Location</span>
                             </p>
                             <button id="toggle" type="button" aria-label="Toggle temperature unit"
-                                class=" relative w-16 h-8 border border-white p-1 rounded-2xl flex items-center">
+                                class="relative w-16 h-8 border border-white p-1 rounded-2xl flex items-center cursor-pointer">
                                 <div id="toggle-circle"
                                     class="absolute left-1 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white">
                                 </div>
@@ -270,8 +272,9 @@
                     </template>
                 </section>
 
-                <!-- EXTRA -->
+                <!-- EXTRA Cards-->
                 <div class="h-fit rounded-lg grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- UV Index Card -->
                     <article id="uv_card"
                         class="border-white/30 border w-full bg-black rounded-lg p-4 flex flex-col gap-3 justify-between">
                         <header class="flex items-center gap-2">
@@ -296,7 +299,7 @@
                                 class="text-xs border border-white px-3 py-1 rounded-xl font-bold cursor-pointer">Details</button>
                         </footer>
                     </article>
-
+                    <!-- Wind Card -->
                     <article id="wind-card"
                         class="border-white/30 border w-full bg-black rounded-lg p-4 flex flex-col gap-3 justify-between">
                         <header class="flex gap-2 items-center">
@@ -364,7 +367,7 @@
                             </div>
                         </div>
                     </article>
-
+                    <!-- AQI Card -->
                     <article id="Aqi_card"
                         class="border-white/30 border col-span-full bg-black flex flex-col gap-4 p-4 rounded-lg">
                         <header class="flex items-center gap-2">
@@ -435,7 +438,17 @@
                 </div>
             </div>
         </div>
+        
+         <div class="fixed inset-0 z-50 bg-black/60 backdrop-blur-lg text-white flex flex-col items-center justify-center gap-4 opacity-0 pointer-events-none"
+            id="loader">
+            <div
+                class="w-16 h-16 border-t-4 border-b-4 border-white rounded-full flex items-center justify-center animate-spin">
+                <div class="w-[70%] h-[70%] rounded-full border-l-4 border-r-4 border-white"></div>
+            </div>
+            <p class="text-lg font-bold animate-pulse">Fetching Weather Data . . .</p>
+        </div>
     </main>
+    <script type="module" src="main.js" defer></script>
 </body>
 
 </html>
