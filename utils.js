@@ -56,3 +56,78 @@ export function feelsLikeText(temp, feelsLike) {
 
     return advice;
 }
+// Bg logic
+// Normalise the long string into small string
+export const normalizeCondition = (condition) => {
+    const c = condition.toLowerCase();
+
+    if (c.includes("thunder")) return "storm";
+    if (c.includes("rain")) return "rain";
+    if (c.includes("snow")) return "snow";
+    if (c.includes("cloud") || c.includes("overcast")) return "cloudy";
+    if (c.includes("clear")) return "clear";
+    if (c.includes("fog") || c.includes("mist") || c.includes("haze")) return "mist";
+    if (c.includes("wind") || c.includes("dust")) return "windy";
+
+    return "default";
+};
+//Weather Theme helper funciton
+export const WEATHER_THEME = {
+    clear: {
+        bg: "clear.webp",
+        overlay: "rgba(255, 200, 0, 0.2)"
+    },
+    cloudy: {
+        bg: "cloudy.webp",
+        overlay: "rgba(100, 100, 100, 0.3)"
+    },
+    rain: {
+        bg: "rain.webp",
+        overlay: "rgba(0, 0, 50, 0.4)"
+    },
+    storm: {
+        bg: "storm.webp",
+        overlay: "rgba(0, 0, 0, 0.6)"
+    },
+    snow: {
+        bg: "snow.webp",
+        overlay: "rgba(255, 255, 255, 0.3)"
+    },
+    mist: {
+        bg: "mist.webp",
+        overlay: "rgba(200, 200, 200, 0.3)"
+    },
+    windy: {
+        bg: "windy.webp",
+        overlay: "rgba(150, 150, 150, 0.3)"
+    },
+    default: {
+        bg: "default.webp",
+        overlay: "rgba(0,0,0,0.3)"
+    }
+};
+// Format the hours array into 12 hrs format
+export function formatTo12hr(timeString) {
+
+    const hour = parseInt(timeString.split(':')[0]);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour} ${ampm}`;
+}
+// weather icon map
+const ICON_MAP = {
+    "clear-day": "sun.png",
+    "cloudy": "cloudy.png",
+    "partly-cloudy-day": "cloudy.png",
+    "rain": "rainy.png",
+    "snow": "snow.png",
+    "thunderstorm": "thunderstorm.png",
+    "partly-cloudy-night": "partly-cloudy-night.png",
+    "clear-night": "night-moon.png",
+    "fog": "fog.png"
+
+};
+// returns map acc to conditions of icon from the icon map
+export function iconSeter(icon) {
+    return `assets/weather_icons/${ICON_MAP[icon]}`;
+}

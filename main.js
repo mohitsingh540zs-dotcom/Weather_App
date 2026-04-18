@@ -1,7 +1,7 @@
 // importing the Config object from config.js file
 
 import { CONFIG } from "./config.js";
-import { feelsLikeText, HumidityText, precipitationText, unitsAssigner, visibilityText } from "./utils.js";
+import { feelsLikeText, formatTo12hr, HumidityText, iconSeter, normalizeCondition, precipitationText, unitsAssigner, visibilityText, WEATHER_THEME } from "./utils.js";
 
 // Cacheing to reduce the expense of dom calls after load creates a object of these instances for better performance and maintainabilty.
 const DOM = {
@@ -18,10 +18,15 @@ const DOM = {
         toggleIndicator: document.getElementById("toggle-circle")
     },
 
+    rightPanel: {
+        upComingContainer: document.getElementById("upcoming-container"),
+        hourlyContainer: document.getElementById("hourly-container")
+    },
+
     Loader: document.getElementById("loader")
 };
 // Destructuring of objects
-const { leftPanel, body, Loader } = DOM;
+const { leftPanel, body, Loader, rightPanel } = DOM;
 
 // ShowDropdown function to make dropdown visible
 const showDropdown = () => {
@@ -35,6 +40,7 @@ const showLoader = () => {
 const hideLoader = () => {
     Loader.classList.add("opacity-0", "pointer-events-none");
 };
+
 let lastCity = "";
 let currentTemp = null;
 // API Caller
@@ -68,7 +74,6 @@ const getWeather = async (city_name) => {
 
             throw new Error("Unknown error");
         }
-
 
         const RawData = await res.json();
 
@@ -218,8 +223,12 @@ const updateUI = (data) => {
 
     const weather = formatWeatherData(data);
 
+    const hours = formatHours([...data.days[0].hours, ...data.days[1].hours]);
+
     currentTemp = weather.temp;
     updateLeftCard(weather);
+    updateBackground(weather.conditions);
+    updateHourlyContainer(hours);
 }
 // left fixed card updation
 const updateLeftCard = (data) => {
@@ -270,4 +279,115 @@ const updateLeftCard = (data) => {
         advice.textContent = adviceMap[key](data);
     });
 
+}
+// function to applybackground to main container and left card
+const applyBackground = (el, bgPath) => {
+    el.style.backgroundImage = `url('${bgPath}')`;
+    el.style.backgroundSize = "cover";
+    el.style.backgroundPosition = "center";
+}
+// background updation
+const updateBackground = (condition) => {
+    const type = normalizeCondition(condition);
+    const theme = WEATHER_THEME[type];
+    const bgPath = `/assets/weathers/${theme.bg}`
+
+
+    applyBackground(body, bgPath);
+    body.classList.remove("bg-blue-300");
+
+    applyBackground(leftPanel.leftCard, bgPath);
+    leftPanel.leftCard.classList.remove("bg-blue-600");
+};
+// Auto location with fallback to default city
+const getUserLocation = () => {
+    if (!navigator.geolocation) {
+        console.warn("Geolocation not supported → fallback Delhi");
+        getWeather("Delhi");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            getWeatherByCoords(lat, lon);
+        },
+        (error) => {
+            console.warn("Location failed → fallback Delhi", error);
+            getWeather("Delhi");
+        },
+        {
+            timeout: 5000
+        }
+    );
+};
+// takes lat and long acc to user's location 
+const getWeatherByCoords = async (lat, lon) => {
+    showLoader();
+    try {
+        const baseURL = `${CONFIG.BASE_URL}${lat},${lon}?unitGroup=metric&key=${CONFIG.API_KEY}&contentType=json`;
+
+        const res = await fetch(baseURL);
+        const RawData = await res.json();
+
+        updateUI(RawData);
+
+    } catch (error) {
+        console.error("Error fetching location weather", error);
+    } finally {
+        hideLoader();
+    }
+};
+// a listener which runs on every load
+window.addEventListener("load", () => {
+    getUserLocation();
+});
+//for next 24 hours.
+const formatHours = (data) => {
+
+    const currentHour = new Date().getHours();
+
+    const startingIndex = data.findIndex(h => parseInt(h.datetime.split(':')[0]) === currentHour);
+    const safeIndex = startingIndex === -1 ? 0 : startingIndex;
+
+    const next24 = data.slice(safeIndex, safeIndex + 24);
+
+    return next24.map((hour, index) => ({
+        time: index === 0 ? "Now" : formatTo12hr(hour.datetime),
+        temp: hour.temp,
+        icon: hour.icon,
+        condition: hour.conditions
+    }));
+}
+// hourly updation 12 hrs format upto 24hrs
+const updateHourlyContainer = (data) => {
+    rightPanel.hourlyContainer.innerHTML = "";
+
+    const template = document.getElementById("hourly-template");
+    const fragment = document.createDocumentFragment();
+
+    data.forEach(hour => {
+
+        const clone = template.content.cloneNode(true);
+
+        const map = {
+            "time": hour.time,
+            "temp": hour.temp,
+            "icon": hour.icon
+        }
+        Object.keys(map).forEach(key => {
+            const el = clone.querySelector(`[data-hourly="${key}"]`);
+            if (el && key === "icon") {
+                el.src = iconSeter(map[key]);
+                el.alt = iconSeter(map[key]).split('.')[0];
+            }
+            else {
+                el.textContent = key === "temp" ? unitsAssigner(map[key], key) : map[key];
+            }
+        });
+        fragment.appendChild(clone);
+    });
+    rightPanel.hourlyContainer.appendChild(fragment);
 }

@@ -35,7 +35,7 @@
                 <!-- search -->
                 <div aria-label="Search city weather" id="search-container" class="relative">
                     <form id="search-form"
-                        class="border-white/20 border bg-black/40 w-full rounded-2xl flex items-center gap-4 px-4 py-2 shrink-0">
+                        class="border-white/30 border bg-black/40 w-full rounded-2xl flex items-center gap-4 px-4 py-2 shrink-0">
 
                         <img src="./assets/icons/location.png" alt="Location Icon" width="26" height="26"
                             class="w-6 h-6 invert">
@@ -75,7 +75,7 @@
 
                 <!-- weather card -->
                 <section aria-label="Current Weather" id="left-card" class="bg-blue-500/50 
-            flex flex-col gap-4 rounded-2xl flex-1">
+            flex flex-col gap-4 rounded-2xl flex-1 border border-white/30">
 
                     <!-- TOP -->
                     <header class="w-full flex flex-col items-center text-center gap-3 py-2 px-4 h-fit min-w-0">
@@ -87,7 +87,7 @@
                                     class="[text-shadow:0_0_8px_rgba(0,0,0,0.9)]">Location</span>
                             </p>
                             <button id="toggle" type="button" aria-label="Toggle temperature unit"
-                                class="relative w-16 h-8 border border-white p-1 rounded-2xl flex items-center cursor-pointer">
+                                class="relative w-16 h-8 border border-white p-1 rounded-2xl flex items-center [text-shadow:0_0_8px_rgba(0,0,0,0.9)] cursor-pointer">
                                 <div id="toggle-circle"
                                     class="absolute left-1 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white transition-all duration-300 ease-in-out">
                                 </div>
@@ -130,7 +130,8 @@
                                 <h3 class="data-value text-lg md:text-[1.5rem]">Temp</h3>
                             </div>
 
-                            <p class="data-advice text-sm sm:text-xs max-w-[90%] sm:max-w-xs wrap-break-word">Advice.</p>
+                            <p class="data-advice text-sm sm:text-xs max-w-[90%] sm:max-w-xs wrap-break-word">Advice.
+                            </p>
                         </article>
 
                         <article data-key="humidity"
@@ -180,7 +181,8 @@
                                 <h3 class="data-value text-lg md:text-[1.5rem]">Value</h3>
                             </div>
 
-                            <p class="data-advice text-sm sm:text-xs  max-w-[90%] sm:max-w-xs wrap-break-word">Advice.</p>
+                            <p class="data-advice text-sm sm:text-xs  max-w-[90%] sm:max-w-xs wrap-break-word">Advice.
+                            </p>
                         </article>
                     </footer>
 
@@ -214,7 +216,7 @@
                     <!-- inner hourly cards template for dynamic card creation. -->
                     <template id="hourly-template">
                         <article
-                            class="shrink-0 bg-black/60 border-white/40 border rounded-lg px-8 py-4 flex flex-col items-center gap-2 mb-2">
+                            class="shrink-0 bg-black/60 border-white/40 border rounded-lg px-6 sm:px-8 py-4 flex flex-col items-center gap-2 mb-2">
                             <p data-hourly="time" class="text-sm"></p>
                             <h4 data-hourly="temp" class="text-2xl"></h4>
                             <img data-hourly="icon" class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14" src=""

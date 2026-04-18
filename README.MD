@@ -66,29 +66,55 @@ A centralised DOM object is used to store all selectors.
 ## Functionalities
 Functions created by javascript to make webpage interactive.
 
-**Search Bar**
-- Search bar for user's to type and check the weather of there desired city.
-- Contains input and button.
-**Dropdown History**
-- To save the user's searched city in there localStorage by saveHistory function.
-- Display the last searched cities in the form of display box.
-**HideDropdown**
-- To hide dropdown box by clicking on cross icon or in document other then search bar.
-**Custom Loader**
-- For making app alive and user's don't think that they are stucked.
-**GetWeather**
-- Async function to make call on api to get the response by the city as input.
-**FormatWeather**
-Instead of feeding full api response i cleaned the data to use for my own needs.
-- Destructuring the neccesary objects like currentConditions, days, description, etc..
-**UnitConverter**
-Created a function to convert celcius value to farenheit value.
-- Trigger on toggle.
-- Used the pure formula for calculation.
-**UpdateUi**
+- **Search Bar**
+  - Search bar for user's to type and check the weather of there desired city.
+  - Contains input and button.
+
+- **Dropdown History**
+  - To save the user's searched city in there localStorage by saveHistory function.
+  - Display the last searched cities in the form of display box.
+
+- **HideDropdown**
+  - To hide dropdown box by clicking on cross icon or in document other then search bar.
+
+- **Custom Loader**
+  - For making app alive and user's don't think that they are stucked.
+
+- **GetWeather**
+  - Async function to make call on api to get the response by the city as input.
+
+- **FormatWeather**
+  Instead of feeding full api response i cleaned the data to use for my own needs.
+  - Destructuring the neccesary objects like currentConditions, days, description, etc..
+
+- **UnitConverter**
+  Created a function to convert celcius value to farenheit value.
+  - Trigger on toggle.
+  - Used the pure formula for calculation.
+
+- **UpdateUi**
 Created a Master function which takes the clean data and pass them to other particluar functions.
-- UpdateLeftCard: to update the left part of app.
+  - UpdateLeftCard: to update the left part of app.
+
+**Auto Location**
+A feature to detect the location of user's according to there browser with the help of built-in functions and latitide,longitude.
+ - Provided fallback for those whose browser doesn't support this feature.
+
+**Hourly Forecast**
+This feature provides hourly data of next 24hours in 12hrs format with (Am:Pm).
+  - Used fragment approach to reduce the hourly update to one update.
+  - Created clone nodes in memory then inside the container.
+
+**Dynamic Background Updater**
+Updates Background according to the weather conditions.
+  -Used ThemeMap to map the weather conditions data.
+  -Function that takes the returned value and provide the path of png for required bg.
 
 # Utils 
 This javascript file contains the helper function which returns texts,units, or other neccessary data.
 - Used to consist the cleaniness of code.
+- Added new functions.
+  -Background changer: provide background according to weather condition.
+  -HoursFormater: format hours in 12hrs format.
+  -IconMaper: Provide necessary icon acc to the weather.
+  
