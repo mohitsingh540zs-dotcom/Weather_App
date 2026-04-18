@@ -1,7 +1,7 @@
 // importing the Config object from config.js file
 
 import { CONFIG } from "./config.js";
-import { feelsLikeText, formatTo12hr, HumidityText, iconSeter, normalizeCondition, precipitationText, unitsAssigner, visibilityText, WEATHER_THEME } from "./utils.js";
+import { dateFormater, feelsLikeText, formatTo12hr, HumidityText, iconSeter, normalizeCondition, precipitationText, unitsAssigner, visibilityText, WEATHER_THEME } from "./utils.js";
 
 // Cacheing to reduce the expense of dom calls after load creates a object of these instances for better performance and maintainabilty.
 const DOM = {
@@ -221,14 +221,25 @@ const updateLeftTemp = () => {
 const updateUI = (data) => {
     // first we will clean the raw data and then we will send the cleaned data to other updating functions.
 
+    // taking the destructured values in the weather variable->object instance
     const weather = formatWeatherData(data);
 
+    // Formaters:-
+    // Hours Formater function call + taking value(Array) in the hours variable
     const hours = formatHours([...data.days[0].hours, ...data.days[1].hours]);
+    // Days Formater function call + taking value(Array) in the days variable
+    const days = formatDays(data.days);
 
+    // For toggle the temp we store the val in this global variable
     currentTemp = weather.temp;
+    // LeftCard
     updateLeftCard(weather);
+    // Dynamic Background
     updateBackground(weather.conditions);
+    // HourlyUpdater
     updateHourlyContainer(hours);
+    // Upcomingdays Updater
+    updateUpcomingForecast(days);
 }
 // left fixed card updation
 const updateLeftCard = (data) => {
@@ -391,3 +402,53 @@ const updateHourlyContainer = (data) => {
     });
     rightPanel.hourlyContainer.appendChild(fragment);
 }
+//format necessary data for next 5 days.
+const formatDays = (data) => {
+
+    return data.slice(1, 6).map(day => ({
+        datetime: day.datetime,
+        temp: day.temp,
+        windspeed: day.windspeed,
+        humidity: day.humidity,
+        icon: day.icon
+    }));
+}
+// to update the data for next 5days.
+const updateUpcomingForecast = (data) => {
+    const template = document.getElementById('upcoming-template');
+
+    rightPanel.upComingContainer.innerHTML = "";
+
+    const fragment = document.createDocumentFragment();
+
+    data.forEach(day => {
+        const clone = template.content.cloneNode(true);
+
+        const map = {
+            date: day.datetime,
+            temp: day.temp,
+            windspeed: day.windspeed,
+            humidity: day.humidity,
+            icon: day.icon
+        };
+
+        Object.keys(map).forEach(key => {
+            const el = clone.querySelector(`[data-upcoming="${key}"]`);
+            if (!el) return;
+
+            if (el && key === 'icon') {
+                el.src = iconSeter(map[key]);
+                el.alt = map[key];
+            } else {
+                el.textContent =
+                    key === "date"
+                        ? dateFormater(map[key])
+                        : unitsAssigner(map[key], key);
+            }
+        });
+
+        fragment.appendChild(clone);
+    });
+
+    rightPanel.upComingContainer.appendChild(fragment);
+};

@@ -131,3 +131,17 @@ const ICON_MAP = {
 export function iconSeter(icon) {
     return `assets/weather_icons/${ICON_MAP[icon]}`;
 }
+// takes date string and return the short date 
+export function dateFormater(dateString) {
+    if (!dateString) return
+
+    const date = new Date(dateString);
+
+    const options = {
+        month: "short",
+        day: "numeric",
+        year: "2-digit"
+    }
+
+    return new Intl.DateTimeFormat('en-US', options).format(date)
+}

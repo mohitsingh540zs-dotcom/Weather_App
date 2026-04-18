@@ -96,25 +96,31 @@ Functions created by javascript to make webpage interactive.
 Created a Master function which takes the clean data and pass them to other particluar functions.
   - UpdateLeftCard: to update the left part of app.
 
-**Auto Location**
-A feature to detect the location of user's according to there browser with the help of built-in functions and latitide,longitude.
+-**Auto Location**
+  A feature to detect the location of user's according to there browser with the help of built-in functions and latitide,longitude.
  - Provided fallback for those whose browser doesn't support this feature.
 
-**Hourly Forecast**
-This feature provides hourly data of next 24hours in 12hrs format with (Am:Pm).
+-**Hourly Forecast**
+  This feature provides hourly data of next 24hours in 12hrs format with (Am:Pm).
   - Used fragment approach to reduce the hourly update to one update.
   - Created clone nodes in memory then inside the container.
 
-**Dynamic Background Updater**
-Updates Background according to the weather conditions.
+-**Dynamic Background Updater**
+  Updates Background according to the weather conditions.
   -Used ThemeMap to map the weather conditions data.
   -Function that takes the returned value and provide the path of png for required bg.
+
+-**Upcoming Forecast**
+Provides next 5 days forecast data with temp, icon, humidity,wind and date.
+  - Uses dateTimeFormater for provide date,
+  - Uses iconSeter for icons
+  - Uses template and fragment approach for dynamic card creation and faster injection in DOM. 
 
 # Utils 
 This javascript file contains the helper function which returns texts,units, or other neccessary data.
 - Used to consist the cleaniness of code.
 - Added new functions.
-  -Background changer: provide background according to weather condition.
-  -HoursFormater: format hours in 12hrs format.
-  -IconMaper: Provide necessary icon acc to the weather.
-  
+  - Background changer: provide background according to weather condition.
+  - HoursFormater: format hours in 12hrs format.
+  - IconMaper: Provide necessary icon acc to the weather.
+  - DatetimeFormater: format the dateString into usable short time.
