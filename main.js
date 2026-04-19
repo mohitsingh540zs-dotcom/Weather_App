@@ -30,6 +30,11 @@ const DOM = {
         uvIndicator: document.querySelector("#uv_card .uv-indicator"),
         elements: null
     },
+    wind: {
+        windCard: document.getElementById("wind-card"),
+        compassNeedle: document.getElementById("compass-needle"),
+        elements: null
+    }
 
 };
 // We assign uv.elements separately because we cannot reference DOM inside its own object definition.
@@ -38,6 +43,11 @@ DOM.uv.elements = {
     value: DOM.uv.uvCard.querySelector('[data-key="uv-value"]'),
     status: DOM.uv.uvCard.querySelector('[data-key="uv-status"]'),
     suggestion: DOM.uv.uvCard.querySelector('[data-key="uv-suggestion"]')
+};
+// DOM.wind
+DOM.wind.elements = {
+    speed: DOM.wind.windCard.querySelector('[data-key="wind-speed"]'),
+    gust: DOM.wind.windCard.querySelector('[data-key="wind-gust"]')
 };
 // Destructuring of objects
 const { leftPanel, body, Loader, rightPanel } = DOM;
@@ -240,6 +250,13 @@ const updateUI = (data) => {
     // taking the destructured values in the weather variable->object instance
     const weather = formatWeatherData(data);
 
+    // Necessary wind data
+    const wind = {
+        winddir: weather.winddir,
+        windgust: weather.windgust,
+        windspeed: weather.wind_speed
+    }
+
     // Formaters:-
     // Hours Formater function call + taking value(Array) in the hours variable
     const hours = formatHours([...data.days[0].hours, ...data.days[1].hours]);
@@ -257,7 +274,7 @@ const updateUI = (data) => {
     // Upcomingdays Updater
     updateUpcomingForecast(days);
     // Updation of data cards
-    updateExtraCards(weather.uv_index);
+    updateExtraCards(weather.uv_index, wind);
 }
 // left fixed card updation
 const updateLeftCard = (data) => {
@@ -494,7 +511,20 @@ const updateUV = (uvValue) => {
 
     uvDOM.uvIndicator.style.left = `${position}%`;
 };
+// Wind Card provides the data of wind in winddrirection, wind gusts
+const WindCardUpdate = ({winddir, windgust, windspeed}) => {
+
+    const windDOM = DOM.wind;
+
+    windDOM.elements.speed.textContent = Math.round(windspeed);
+    windDOM.elements.gust.textContent = windgust ? Math.round(windgust) : Math.round(windspeed)
+
+
+    windDOM.compassNeedle.style.transform = `rotate(${winddir}deg)`;
+}
+
 // Handler of other data cards 
-const updateExtraCards = (uv) => {
+const updateExtraCards = (uv, wind) => {
     updateUV(uv);
+    WindCardUpdate(wind);
 }
