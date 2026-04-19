@@ -23,13 +23,13 @@
         <!-- overlay container for dim effect -->
         <div class="absolute inset-0 bg-black/20"></div>
 
-        <!-- left card-->
+        <!-- Main container-->
         <div
             class="relative bg-[rgba(30,30,30,0.4)] backdrop-blur-xl z-10 p-4 sm:p-6 w-full max-w-7xl mx-auto 
                 grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] xl:grid-cols-[1fr_2fr] 
                 gap-6 rounded-xl overflow-hidden lg:h-[85vh] lg:max-h-[850px] xl:h-[90vh] xl:max-h-[900px] items-stretch">
 
-            <!-- LEFT Container -->
+            <!-- Left Container -->
             <aside class=" flex flex-col gap-3 text-white h-full min-h-0">
 
                 <!-- search -->
@@ -440,7 +440,7 @@
                 </div>
             </div>
         </div>
-
+        <!-- Loader -->
         <div class="fixed inset-0 z-50 bg-black/60 backdrop-blur-lg text-white flex flex-col items-center justify-center gap-4 opacity-0 pointer-events-none"
             id="loader">
             <div
@@ -448,6 +448,18 @@
                 <div class="w-[70%] h-[70%] rounded-full border-l-4 border-r-4 border-white"></div>
             </div>
             <p class="text-lg font-bold animate-pulse">Fetching Weather Data . . .</p>
+        </div>
+        <!-- Toaster -->
+         <div id="toast" class="fixed bottom-5 right-5 z-50 
+            w-fit max-w-[280px] sm:max-w-xs min-h-10
+            bg-blue-500 text-white px-4 py-6 rounded-lg shadow-lg
+            flex items-center gap-2
+            translate-x-full opacity-0
+            transition-all duration-500 ease-out
+            pointer-events-none">
+
+            <span id="toast-icon" class="[text-shadow:0_0_8px_rgba(0,0,0,0.9)]"></span>
+            <span id="toast-message" class="text-sm sm:text-lg break-words leading-tight font-bold"></span>
         </div>
     </main>
     <script type="module" src="main.js" defer></script>

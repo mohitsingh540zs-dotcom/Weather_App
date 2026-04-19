@@ -39,6 +39,11 @@ const DOM = {
         aqiCard: document.getElementById("Aqi_card"),
         aqiIndicator: document.querySelector("#Aqi_card .aqi-indicator"),
         elements: null
+    },
+    Toaster: {
+        toast: document.getElementById("toast"),
+        msg: document.getElementById("toast-message"),
+        icon: document.getElementById("toast-icon")
     }
 
 };
@@ -86,12 +91,38 @@ const getWeather = async (city_name) => {
 
     if (!city_name) return;
 
-    if (city_name === lastCity) {
-        console.log("Already showing this city");
+    //normalize once
+    const normalizedCity = city_name.trim().toLowerCase();
+    const key = `weather_${normalizedCity}`;
+
+    //avoid duplicate calls
+    if (normalizedCity === lastCity) {
+        ShowToast("Already showing this city", "info");
         return;
     }
 
-    lastCity = city_name;
+    // cache check 
+    const cached = localStorage.getItem(key);
+
+    if (cached) {
+        const parsed = JSON.parse(cached);
+
+        const now = Date.now();
+        const cacheAge = now - parsed.timestamp;
+
+        const TWENTY_MIN = 20 * 60 * 1000;
+
+        if (cacheAge < TWENTY_MIN) {
+            console.log("Using cached data");
+
+            updateUI(parsed.data.forecastData, parsed.data.AQIData);
+            ShowToast("Loaded from cache", "info");
+
+            lastCity = normalizedCity;
+            return;
+        }
+    }
+
     showLoader();
 
     // To save api call cost
@@ -107,8 +138,32 @@ const getWeather = async (city_name) => {
             fetch(hourlyURL)
         ]);
 
+        // checks forecast's status
+        if (!forecastRes.ok) {
+            if (forecastRes.status === 429) {
+                ShowToast("Forecast API limit reached", "error");
+                return;
+            }
+            if (forecastRes.status === 404) {
+                ShowToast("City not found", "error");
+                return;
+            }
+            throw new Error("Forecast API error");
+        }
+
+        // checks hourly status
+        if (!hourlyRes.ok) {
+            if (hourlyRes.status === 429) {
+                ShowToast("Hourly API limit reached", "error");
+                return;
+            }
+            throw new Error("Hourly API error");
+        }
+
         const forecastData = await forecastRes.json();
         const hourlyData = await hourlyRes.json();
+
+        lastCity = normalizedCity;
 
         //Merge hourly into forecast
         forecastData.days[0].hours = hourlyData.days[0].hours;
@@ -123,11 +178,21 @@ const getWeather = async (city_name) => {
 
         const AQIData = await RawAQIData.json();
 
-        console.log(forecastData)
+        // saving the response in localstorage for cache data
+        localStorage.setItem(
+            key,
+            JSON.stringify({
+                data: { forecastData, AQIData },
+                timestamp: Date.now()
+            })
+        );
         updateUI(forecastData, AQIData);
+
+        ShowToast("Successfully fetched", "success");
 
     } catch (error) {
         console.error("Unable to fetch weather data", error);
+        ShowToast("City not found or API error", "error");
     }
     finally {
         setTimeout(() => {
@@ -623,3 +688,59 @@ const updateExtraCards = (uv, wind, aqi) => {
     WindCardUpdate(wind);
     AqiUpdate(aqi);
 }
+
+// Custom popups and alert system
+let toastTimer;
+
+const ShowToast = (alert, type = "info") => {
+
+    const { Toaster } = DOM
+    const toastMap = {
+        success: {
+            icon: '✅',
+            message: "Fetched Successfully",
+            bg: "bg-green-400/80"
+        },
+        error: {
+            icon: '❌',
+            message: "Something went wrong",
+            bg: "bg-red-400/80"
+        },
+        warning: {
+            icon: '⚠️',
+            message: "Alert",
+            bg: "bg-yellow-500/80"
+        },
+        info: {
+            icon: 'ℹ️',
+            message: "Info",
+            bg: "bg-blue-400/80"
+        }
+    };
+
+    const config = toastMap[type] || toastMap.info;
+
+    // message priority: alert param > default message
+    Toaster.msg.textContent = alert || config.message;
+    Toaster.icon.textContent = config.icon;
+
+    // reset bg cleanly
+    Toaster.toast.classList.remove(
+        "bg-green-400/80",
+        "bg-red-400/80",
+        "bg-yellow-500/80",
+        "bg-blue-400/80"
+    );
+    Toaster.toast.classList.add(config.bg);
+
+    // cleared previous timeout
+    if (toastTimer) clearTimeout(toastTimer);
+
+    // show
+    Toaster.toast.classList.remove("translate-x-full", "opacity-0");
+
+    // hide
+    toastTimer = setTimeout(() => {
+        Toaster.toast.classList.add("translate-x-full", "opacity-0");
+    }, 3000);
+};

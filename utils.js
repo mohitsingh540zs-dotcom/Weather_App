@@ -255,7 +255,7 @@ export function AqiStatus(aqi) {
     else if (aqi <= 400) return "Very Unhealthy";
     else return "Hazardous";
 }
-
+// Provides Aqi suggestions
 export function AqiSuggestion(status) {
 
     switch (status) {

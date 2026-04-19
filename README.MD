@@ -63,6 +63,10 @@ A centralised DOM object is used to store all selectors.
 - Reduces repeated calls of query/id selectors.
 - For performance and maintainability.
 - Added new cached elements:- uv object, uv elements.
+- Added new cached elements:- wind object, wind elements.
+- Added new cached elements:- aqi object, aqi elements.
+- Using localStorage to store the data purpose -> cache  storing full necesaary obj 
+- Max life span of stored data is 
 
 ## Functionalities
 Functions created by javascript to make webpage interactive.
@@ -132,6 +136,11 @@ Air Quality Index Card helps to provide the data of air quality with status and 
   - Shows the statuses of aqi
   - Indicator feature (0-500+)
 
+- **Toast Feature**
+Added custom popups to showcase the better error handling
+  - Used 4 base success, error, alert, info
+  - Shows the popups one by one 
+
 # Utils 
 This javascript file contains the helper function which returns texts,units, or other neccessary data.
 - Used to consist the cleaniness of code.
@@ -146,3 +155,4 @@ This javascript file contains the helper function which returns texts,units, or 
   - Added Aqi Suggestion:- provides the suggestion of what to do and what not to do acc to the aqi
   - Added Aqi Calculator:- calculates the aqi as per scale of in or us with the help of pollutants
   - Added Visual Percentage:- provides the percent for movement of indicator
+
