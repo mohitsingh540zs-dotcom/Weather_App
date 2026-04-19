@@ -171,3 +171,107 @@ export function uvSuggestion(status) {
             return "Unknown UV index status";
     }
 }
+// Standard Linear Interpolation Formula
+
+const interpolate = (C, BLo, BHi, ILo, IHi) => {
+    return Math.round(((IHi - ILo) / (BHi - BLo)) * (C - BLo) + ILo);
+};
+// Indian CPCB Calculation (Dynamic PM2.5 & PM10)
+const calcIndia = (pm25, pm10) => {
+    // PM2.5 Sub-index
+    let s25 = 0;
+    if (pm25 <= 30) s25 = interpolate(pm25, 0, 30, 0, 50);
+    else if (pm25 <= 60) s25 = interpolate(pm25, 31, 60, 51, 100);
+    else if (pm25 <= 90) s25 = interpolate(pm25, 61, 90, 101, 200);
+    else if (pm25 <= 120) s25 = interpolate(pm25, 91, 120, 201, 300);
+    else if (pm25 <= 250) s25 = interpolate(pm25, 121, 250, 301, 400);
+    else s25 = interpolate(pm25, 251, 500, 401, 500);
+
+    // PM10 Sub-index
+    let s10 = 0;
+    if (pm10 <= 50) s10 = interpolate(pm10, 0, 50, 0, 50);
+    else if (pm10 <= 100) s10 = interpolate(pm10, 51, 100, 51, 100);
+    else if (pm10 <= 250) s10 = interpolate(pm10, 101, 250, 101, 200);
+    else if (pm10 <= 350) s10 = interpolate(pm10, 251, 350, 201, 300);
+    else if (pm10 <= 430) s10 = interpolate(pm10, 351, 430, 301, 400);
+    else s10 = interpolate(pm10, 431, 500, 401, 500);
+
+    return Math.max(s25, s10);
+};
+// US EPA Calculation (Global Default)
+const calcUS = (pm25, pm10) => {
+    // US EPA focus primarily on PM2.5 for health
+    let s25 = 0;
+    if (pm25 <= 12.0) s25 = interpolate(pm25, 0, 12.0, 0, 50);
+    else if (pm25 <= 35.4) s25 = interpolate(pm25, 12.1, 35.4, 51, 100);
+    else if (pm25 <= 55.4) s25 = interpolate(pm25, 35.5, 55.4, 101, 150);
+    else if (pm25 <= 150.4) s25 = interpolate(pm25, 55.5, 150.4, 151, 200);
+    else if (pm25 <= 250.4) s25 = interpolate(pm25, 150.5, 250.4, 201, 300);
+    else s25 = interpolate(pm25, 250.5, 500, 301, 500);
+
+    return s25; // US EPA standard usually uses PM2.5 as the lead indicator
+};
+// Function to calculate the aqi with the help of calcin and calcUs
+export function getRealAQI(components, countryCode) {
+    const { pm2_5, pm10 } = components;
+
+    if (countryCode === 'IN') {
+        return calcIndia(pm2_5, pm10);
+    } else {
+        return calcUS(pm2_5, pm10);
+    }
+}
+// Gives the % value for indicator movement
+export function getVisualPercentage(aqi) {
+    const segmentWidth = 100 / 6; // 16.66% per block
+
+    if (aqi <= 50) {
+        // part 1 (0-50)
+        return (aqi / 50) * segmentWidth;
+    } else if (aqi <= 100) {
+        // part 2 (51-100)
+        return segmentWidth + ((aqi - 50) / 50) * segmentWidth;
+    } else if (aqi <= 200) {
+        // part 3 (101-200)
+        return (segmentWidth * 2) + ((aqi - 100) / 100) * segmentWidth;
+    } else if (aqi <= 300) {
+        // part 4 (201-300)
+        return (segmentWidth * 3) + ((aqi - 200) / 100) * segmentWidth;
+    } else if (aqi <= 400) {
+        // part 5 (301-400)
+        return (segmentWidth * 4) + ((aqi - 300) / 100) * segmentWidth;
+    } else {
+        // part 6 (401+)
+        let p = (segmentWidth * 5) + ((aqi - 400) / 100) * segmentWidth;
+        return Math.min(p, 100); // 100%
+    }
+}
+// provides the aqi status
+export function AqiStatus(aqi) {
+    if (aqi <= 50) return "Good";
+    else if (aqi <= 100) return "Moderate";
+    else if (aqi <= 200) return "Unhealthy for Sensitive Groups";
+    else if (aqi <= 300) return "Unhealthy";
+    else if (aqi <= 400) return "Very Unhealthy";
+    else return "Hazardous";
+}
+
+export function AqiSuggestion(status) {
+
+    switch (status) {
+        case "Good":
+            return "Healthy air for outdoor activities ";
+        case "Moderate":
+            return "Air quality is acceptable ";
+        case "Unhealthy for Sensitive Groups":
+            return "Sensitive groups should consider limiting prolonged outdoor exertion ";
+        case "Unhealthy":
+            return "Everyone should limit prolonged outdoor exertion ";
+        case "Very Unhealthy":
+            return "Everyone should avoid all physical activity outdoors ";
+        case "Hazardous":
+            return "Health alert: everyone should avoid all physical activity outdoors ";
+        default:
+            return "Unknown air quality status ";
+    }
+}

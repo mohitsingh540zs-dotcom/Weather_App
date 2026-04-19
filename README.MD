@@ -108,8 +108,8 @@ Functions created by javascript to make webpage interactive.
 
 - **Dynamic Background Updater**
   Updates Background according to the weather conditions.
-  -Used ThemeMap to map the weather conditions data.
-  -Function that takes the returned value and provide the path of png for required bg.
+  - Used ThemeMap to map the weather conditions data.
+  - Function that takes the returned value and provide the path of png for required bg.
 
 - **Upcoming Forecast**
   Provides next 5 days forecast data with temp, icon, humidity,wind and date.
@@ -127,6 +127,11 @@ Provides wind data of searched city with the help of wind compass
   - Wind Compass with 4 main poles
   - Direction and gusts textual data
 
+- **Aqi Card**
+Air Quality Index Card helps to provide the data of air quality with status and suggestions
+  - Shows the statuses of aqi
+  - Indicator feature (0-500+)
+
 # Utils 
 This javascript file contains the helper function which returns texts,units, or other neccessary data.
 - Used to consist the cleaniness of code.
@@ -137,3 +142,7 @@ This javascript file contains the helper function which returns texts,units, or 
   - DatetimeFormater: format the dateString into usable short time.
   - Added UvStatus helper:- provides the status of uv rays like good, moderate
   - Added UvSuggestion helper:- provides suggestion's acc to uv rays like apply sunscreen or avoid indoor activites.
+  - Added Aqi Status:- provides the status with colors to give the better ux/ui
+  - Added Aqi Suggestion:- provides the suggestion of what to do and what not to do acc to the aqi
+  - Added Aqi Calculator:- calculates the aqi as per scale of in or us with the help of pollutants
+  - Added Visual Percentage:- provides the percent for movement of indicator

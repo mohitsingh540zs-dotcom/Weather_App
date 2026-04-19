@@ -1,7 +1,7 @@
 // importing the Config object from config.js file
 
 import { CONFIG } from "./config.js";
-import { dateFormater, feelsLikeText, formatTo12hr, HumidityText, iconSeter, normalizeCondition, precipitationText, unitsAssigner, uvStatus, uvSuggestion, visibilityText, WEATHER_THEME } from "./utils.js";
+import { AqiStatus, AqiSuggestion, dateFormater, feelsLikeText, formatTo12hr, getRealAQI, getVisualPercentage, HumidityText, iconSeter, normalizeCondition, precipitationText, unitsAssigner, uvStatus, uvSuggestion, visibilityText, WEATHER_THEME } from "./utils.js";
 
 // Cacheing to reduce the expense of dom calls after load creates a object of these instances for better performance and maintainabilty.
 const DOM = {
@@ -34,6 +34,11 @@ const DOM = {
         windCard: document.getElementById("wind-card"),
         compassNeedle: document.getElementById("compass-needle"),
         elements: null
+    },
+    aqi: {
+        aqiCard: document.getElementById("Aqi_card"),
+        aqiIndicator: document.querySelector("#Aqi_card .aqi-indicator"),
+        elements: null
     }
 
 };
@@ -49,6 +54,13 @@ DOM.wind.elements = {
     speed: DOM.wind.windCard.querySelector('[data-key="wind-speed"]'),
     gust: DOM.wind.windCard.querySelector('[data-key="wind-gust"]')
 };
+// DOM.aqi
+DOM.aqi.elements = {
+    value: DOM.aqi.aqiCard.querySelector('[data-key="aqi-value"]'),
+    status: DOM.aqi.aqiCard.querySelector('[data-key="aqi-status"]'),
+    suggestion: DOM.aqi.aqiCard.querySelector('[data-key="aqi-suggestion"]')
+};
+
 // Destructuring of objects
 const { leftPanel, body, Loader, rightPanel } = DOM;
 
@@ -82,28 +94,37 @@ const getWeather = async (city_name) => {
     lastCity = city_name;
     showLoader();
 
+    // To save api call cost
     try {
-        const baseURL = `${CONFIG.BASE_URL}${city_name}?unitGroup=metric&key=${CONFIG.API_KEY}&contentType=json`;
+        //Forecast (5 days, NO hours)
+        const forecastURL = `${CONFIG.BASE_URL}${city_name}?unitGroup=metric&include=days,current&days=5&key=${CONFIG.API_KEY}&contentType=json`;
 
-        const res = await fetch(baseURL);
+        //Hourly (2 days ONLY)
+        const hourlyURL = `${CONFIG.BASE_URL}${city_name}?unitGroup=metric&include=hours&days=2&key=${CONFIG.API_KEY}&contentType=json`;
 
-        if (!res.ok) {
-            if (res.status === 429) {
-                console.log("API limit reached");
-                return;
-            }
+        const [forecastRes, hourlyRes] = await Promise.all([
+            fetch(forecastURL),
+            fetch(hourlyURL)
+        ]);
 
-            if (res.status === 404) {
-                console.log("City not found");
-                return;
-            }
+        const forecastData = await forecastRes.json();
+        const hourlyData = await hourlyRes.json();
 
-            throw new Error("Unknown error");
-        }
+        //Merge hourly into forecast
+        forecastData.days[0].hours = hourlyData.days[0].hours;
+        forecastData.days[1].hours = hourlyData.days[1].hours;
 
-        const RawData = await res.json();
+        // AQI
+        const { longitude, latitude } = forecastData;
 
-        updateUI(RawData);
+        const RawAQIData = await fetch(
+            `${CONFIG.AQI_BASE_URL}air_pollution?lat=${latitude}&lon=${longitude}&appid=${CONFIG.AQI_API_KEY}`
+        );
+
+        const AQIData = await RawAQIData.json();
+
+        console.log(forecastData)
+        updateUI(forecastData, AQIData);
 
     } catch (error) {
         console.error("Unable to fetch weather data", error);
@@ -113,7 +134,7 @@ const getWeather = async (city_name) => {
             hideLoader();
         }, 500);
     }
-}
+};
 // To save the searched history in localStorage.
 const saveSearch = (text) => {
     const storageKey = 'city_history';
@@ -218,7 +239,7 @@ const formatWeatherData = (data) => {
     return {
         temp,
         conditions,
-        desc: description,
+        desc: description || data.days?.[0]?.description || "No description available",
         feelslike,
         humidity,
         visibility,
@@ -244,11 +265,13 @@ const updateLeftTemp = () => {
     el.textContent = temp.toFixed(1) + unit;
 };
 // Master Function to update all data
-const updateUI = (data) => {
+const updateUI = (data, aqiData) => {
     // first we will clean the raw data and then we will send the cleaned data to other updating functions.
 
     // taking the destructured values in the weather variable->object instance
     const weather = formatWeatherData(data);
+    // contains the formated and necessary value of aqi
+    const aqi = formatAQIData(aqiData);
 
     // Necessary wind data
     const wind = {
@@ -274,7 +297,7 @@ const updateUI = (data) => {
     // Upcomingdays Updater
     updateUpcomingForecast(days);
     // Updation of data cards
-    updateExtraCards(weather.uv_index, wind);
+    updateExtraCards(weather.uv_index, wind, aqi);
 }
 // left fixed card updation
 const updateLeftCard = (data) => {
@@ -378,7 +401,13 @@ const getWeatherByCoords = async (lat, lon) => {
         const res = await fetch(baseURL);
         const RawData = await res.json();
 
-        updateUI(RawData);
+        const RawAQIData = await fetch(
+            `${CONFIG.AQI_BASE_URL}air_pollution?lat=${lat}&lon=${lon}&appid=${CONFIG.AQI_API_KEY}`
+        );
+
+        const AQIData = await RawAQIData.json();
+
+        updateUI(RawData, AQIData);
 
     } catch (error) {
         console.error("Error fetching location weather", error);
@@ -512,7 +541,7 @@ const updateUV = (uvValue) => {
     uvDOM.uvIndicator.style.left = `${position}%`;
 };
 // Wind Card provides the data of wind in winddrirection, wind gusts
-const WindCardUpdate = ({winddir, windgust, windspeed}) => {
+const WindCardUpdate = ({ winddir, windgust, windspeed }) => {
 
     const windDOM = DOM.wind;
 
@@ -522,9 +551,75 @@ const WindCardUpdate = ({winddir, windgust, windspeed}) => {
 
     windDOM.compassNeedle.style.transform = `rotate(${winddir}deg)`;
 }
+// AQI Rawdata formater
+const formatAQIData = (aqiData) => {
+    const { components, country } = aqiData.list[0];
 
+    const aqi = getRealAQI(components, country);
+    const status = AqiStatus(aqi);
+
+    return {
+        aqi,
+        pm2_5: components.pm2_5,
+        pm10: components.pm10,
+        o3: components.o3,
+        status,
+        suggestion: AqiSuggestion(status),
+        color: status === "Good" ? "green-400" :
+            status === "Moderate" ? "yellow-400" :
+                status === "Unhealthy for Sensitive Groups" ? "orange-400" :
+                    status === "Unhealthy" ? "red-400" :
+                        status === "Very Unhealthy" ? "purple-400" :
+                            "maroon-400"
+    };
+};
+// AQI Card provides the calculated air quality with the help of harmfull pollutants 
+const AqiUpdate = (aqi) => {
+    const aqiDOM = DOM.aqi;
+
+    // update values (using cached elements)
+    aqiDOM.elements.value.textContent = aqi.aqi;
+    aqiDOM.elements.status.textContent = aqi.status;
+    aqiDOM.elements.suggestion.textContent = aqi.suggestion;
+
+    // Color mapping
+    const colorMap = {
+        "green-400": "text-green-400",
+        "yellow-400": "text-yellow-400",
+        "orange-400": "text-orange-400",
+        "red-400": "text-red-400",
+        "purple-400": "text-purple-400",
+        "maroon-400": "text-maroon-400"
+    };
+    // Border mapping
+    const borderMap = {
+        "green-400": "border-green-400",
+        "yellow-400": "border-yellow-400",
+        "orange-400": "border-orange-400",
+        "red-400": "border-red-400",
+        "purple-400": "border-purple-400",
+        "maroon-400": "border-maroon-400"
+    };
+
+    // remove old classes
+    Object.values(colorMap).forEach(cls =>
+        aqiDOM.elements.status.classList.remove(cls)
+    );
+
+    const borders = Object.values(borderMap);
+    aqiDOM.aqiIndicator.classList.remove(...borders);
+
+    // add new classes
+    aqiDOM.elements.status.classList.add(colorMap[aqi.color]);
+    aqiDOM.aqiIndicator.classList.add(borderMap[aqi.color]);
+
+    // indicator position
+    const percentage = getVisualPercentage(aqi.aqi);
+    aqiDOM.aqiIndicator.style.left = `calc(${percentage}% - 10px)`;
+};
 // Handler of other data cards 
-const updateExtraCards = (uv, wind) => {
+const updateExtraCards = (uv, wind, aqi) => {
     updateUV(uv);
     WindCardUpdate(wind);
+    AqiUpdate(aqi);
 }
