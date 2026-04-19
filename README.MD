@@ -62,6 +62,7 @@ Added the right-side container with key weather data components including:
 A centralised DOM object is used to store all selectors.
 - Reduces repeated calls of query/id selectors.
 - For performance and maintainability.
+- Added new cached elements:- uv object, uv elements.
 
 ## Functionalities
 Functions created by javascript to make webpage interactive.
@@ -96,25 +97,30 @@ Functions created by javascript to make webpage interactive.
 Created a Master function which takes the clean data and pass them to other particluar functions.
   - UpdateLeftCard: to update the left part of app.
 
--**Auto Location**
+- **Auto Location**
   A feature to detect the location of user's according to there browser with the help of built-in functions and latitide,longitude.
  - Provided fallback for those whose browser doesn't support this feature.
 
--**Hourly Forecast**
+- **Hourly Forecast**
   This feature provides hourly data of next 24hours in 12hrs format with (Am:Pm).
   - Used fragment approach to reduce the hourly update to one update.
   - Created clone nodes in memory then inside the container.
 
--**Dynamic Background Updater**
+- **Dynamic Background Updater**
   Updates Background according to the weather conditions.
   -Used ThemeMap to map the weather conditions data.
   -Function that takes the returned value and provide the path of png for required bg.
 
--**Upcoming Forecast**
-Provides next 5 days forecast data with temp, icon, humidity,wind and date.
+- **Upcoming Forecast**
+ Provides next 5 days forecast data with temp, icon, humidity,wind and date.
   - Uses dateTimeFormater for provide date,
   - Uses iconSeter for icons
-  - Uses template and fragment approach for dynamic card creation and faster injection in DOM. 
+  - Uses template and fragment approach for dynamic card creation and faster injection in DOM.
+
+- **Uv Index**
+Provides the uv index data of searched city with the help of slide bar and status.
+  - Uses helper function to demonstrate the condition of uv.
+  - Smart enough to provide the precautions to user's.
 
 # Utils 
 This javascript file contains the helper function which returns texts,units, or other neccessary data.
@@ -124,3 +130,5 @@ This javascript file contains the helper function which returns texts,units, or 
   - HoursFormater: format hours in 12hrs format.
   - IconMaper: Provide necessary icon acc to the weather.
   - DatetimeFormater: format the dateString into usable short time.
+  - Added UvStatus helper:- provides the status of uv rays like good, moderate
+  - Added UvSuggestion helper:- provides suggestion's acc to uv rays like apply sunscreen or avoid indoor activites.

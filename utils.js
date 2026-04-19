@@ -145,3 +145,29 @@ export function dateFormater(dateString) {
 
     return new Intl.DateTimeFormat('en-US', options).format(date)
 }
+// Provides status of harmfull UV rays 
+export function uvStatus(uv) {
+    if (uv <= 2) return "Low";
+    else if (uv <= 5) return "Moderate";
+    else if (uv <= 7) return "High";
+    else if (uv <= 10) return "Very High";
+    else return "Extreme";
+}
+// Provides Suggestion according to UVindex value, precautions and all
+export function uvSuggestion(status) {
+    switch (status) {
+        case "Low":
+            return "Minimal risk of harm";
+        case "Moderate":
+            return "Apply sunscreen";
+        case "High":
+            return "Apply sunscreen and wear protective clothing";
+        case "Very High":
+            return "Extra precautions needed."
+        case "Extreme":
+            return "Take all precautions. Avoid sun exposure.";
+
+        default:
+            return "Unknown UV index status";
+    }
+}

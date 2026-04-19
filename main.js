@@ -1,7 +1,7 @@
 // importing the Config object from config.js file
 
 import { CONFIG } from "./config.js";
-import { dateFormater, feelsLikeText, formatTo12hr, HumidityText, iconSeter, normalizeCondition, precipitationText, unitsAssigner, visibilityText, WEATHER_THEME } from "./utils.js";
+import { dateFormater, feelsLikeText, formatTo12hr, HumidityText, iconSeter, normalizeCondition, precipitationText, unitsAssigner, uvStatus, uvSuggestion, visibilityText, WEATHER_THEME } from "./utils.js";
 
 // Cacheing to reduce the expense of dom calls after load creates a object of these instances for better performance and maintainabilty.
 const DOM = {
@@ -23,7 +23,21 @@ const DOM = {
         hourlyContainer: document.getElementById("hourly-container")
     },
 
-    Loader: document.getElementById("loader")
+    Loader: document.getElementById("loader"),
+
+    uv: {
+        uvCard: document.getElementById("uv_card"),
+        uvIndicator: document.querySelector("#uv_card .uv-indicator"),
+        elements: null
+    },
+
+};
+// We assign uv.elements separately because we cannot reference DOM inside its own object definition.
+// JavaScript builds the object top-down, so DOM.uv is not accessible during initialization.
+DOM.uv.elements = {
+    value: DOM.uv.uvCard.querySelector('[data-key="uv-value"]'),
+    status: DOM.uv.uvCard.querySelector('[data-key="uv-status"]'),
+    suggestion: DOM.uv.uvCard.querySelector('[data-key="uv-suggestion"]')
 };
 // Destructuring of objects
 const { leftPanel, body, Loader, rightPanel } = DOM;
@@ -32,16 +46,18 @@ const { leftPanel, body, Loader, rightPanel } = DOM;
 const showDropdown = () => {
     leftPanel.dropdown.classList.remove("hidden");
 }
-
+// Function to show loader
 const showLoader = () => {
     Loader.classList.remove("opacity-0", "pointer-events-none");
 };
-
+// Function to hide loader
 const hideLoader = () => {
     Loader.classList.add("opacity-0", "pointer-events-none");
 };
 
+// Global variable last City for storing the last city and skipping api call of same city again and again
 let lastCity = "";
+// Current temp global variable for storing the temp of current searched city to toggle the temp
 let currentTemp = null;
 // API Caller
 const getWeather = async (city_name) => {
@@ -240,6 +256,8 @@ const updateUI = (data) => {
     updateHourlyContainer(hours);
     // Upcomingdays Updater
     updateUpcomingForecast(days);
+    // Updation of data cards
+    updateExtraCards(weather.uv_index);
 }
 // left fixed card updation
 const updateLeftCard = (data) => {
@@ -452,3 +470,31 @@ const updateUpcomingForecast = (data) => {
 
     rightPanel.upComingContainer.appendChild(fragment);
 };
+// UV Index Card provides the data of harmful uv rays with some safety recommendation
+const updateUV = (uvValue) => {
+    const Status = uvStatus(uvValue);
+    const Suggestion = uvSuggestion(Status);
+
+    const uvDOM = DOM.uv;
+
+    //Used cached elements
+    uvDOM.elements.value.textContent = uvValue;
+    uvDOM.elements.status.textContent = Status;
+    uvDOM.elements.suggestion.textContent = Suggestion;
+
+    // indicator logic
+    const maxUV = 11;
+    let ratio = uvValue / maxUV;
+    ratio = Math.max(0, Math.min(1, ratio));
+
+    const min = 4;
+    const max = 96;
+
+    const position = min + (max - min) * ratio;
+
+    uvDOM.uvIndicator.style.left = `${position}%`;
+};
+// Handler of other data cards 
+const updateExtraCards = (uv) => {
+    updateUV(uv);
+}
