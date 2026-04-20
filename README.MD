@@ -141,6 +141,12 @@ Added custom popups to showcase the better error handling
   - Used 4 base success, error, alert, info
   - Shows the popups one by one 
 
+- **Added Weather Alert**
+Provide the suggestion in the form of popup if there is very high temperature
+  - Hot Weather
+  - Very Hot Weather
+  - Cold Weather
+
 # Utils 
 This javascript file contains the helper function which returns texts,units, or other neccessary data.
 - Used to consist the cleaniness of code.
@@ -156,3 +162,26 @@ This javascript file contains the helper function which returns texts,units, or 
   - Added Aqi Calculator:- calculates the aqi as per scale of in or us with the help of pollutants
   - Added Visual Percentage:- provides the percent for movement of indicator
 
+# Future Improvements
+- Autocomplete city search (API-based suggestions)
+- Save favorite locations
+- Rain / storm alerts
+- Charts for temperature & AQI trends
+- Migration to React for scalability
+
+# Key Learnings
+- Efficient DOM manipulation and UI rendering
+- Handling multiple APIs and fallback strategies
+- Building scalable and maintainable frontend architecture
+- Improving UX with micro-interactions and feedback systems
+
+# Preview
+https://weather-app-vert-seven-33.vercel.app/
+
+# License
+
+This project is open-source and available for personal and educational use.
+
+# Acknowledgment
+
+Built as a hands-on project to explore real-world frontend engineering concepts, performance optimization, and API integration.

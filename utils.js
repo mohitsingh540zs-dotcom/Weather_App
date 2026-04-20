@@ -129,7 +129,7 @@ const ICON_MAP = {
 };
 // returns map acc to conditions of icon from the icon map
 export function iconSeter(icon) {
-    return `assets/weather_icons/${ICON_MAP[icon]}`;
+    return `./assets/weather_icons/${ICON_MAP[icon]}`;
 }
 // takes date string and return the short date 
 export function dateFormater(dateString) {

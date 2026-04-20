@@ -187,9 +187,6 @@ const getWeather = async (city_name) => {
             })
         );
         updateUI(forecastData, AQIData);
-
-        ShowToast("Successfully fetched", "success");
-
     } catch (error) {
         console.error("Unable to fetch weather data", error);
         ShowToast("City not found or API error", "error");
@@ -363,6 +360,17 @@ const updateUI = (data, aqiData) => {
     updateUpcomingForecast(days);
     // Updation of data cards
     updateExtraCards(weather.uv_index, wind, aqi);
+
+    // Storing the temprature alert if exists
+    const triggered = checkTemperatureAlert(weather.temp);
+
+    if (!triggered) {
+        ShowToast("Successfully fetched", "success");
+    } else {
+        setTimeout(() => {
+            checkTemperatureAlert(weather.temp);
+        }, 50);
+    }
 }
 // left fixed card updation
 const updateLeftCard = (data) => {
@@ -743,4 +751,23 @@ const ShowToast = (alert, type = "info") => {
     toastTimer = setTimeout(() => {
         Toaster.toast.classList.add("translate-x-full", "opacity-0");
     }, 3000);
+};
+// High Weather alerts
+const checkTemperatureAlert = (temp) => {
+    temp = Number(temp);
+
+    if (isNaN(temp)) return false;
+
+    if (temp >= 45) {
+        ShowToast("Extreme heat! Avoid going outside", "warning");
+        return true;
+    } else if (temp >= 37) {
+        ShowToast("Very hot weather. Stay hydrated", "warning");
+        return true;
+    } else if (temp <= 5) {
+        ShowToast("Very cold! Wear warm clothes", "warning");
+        return true;
+    }
+
+    return false;
 };
